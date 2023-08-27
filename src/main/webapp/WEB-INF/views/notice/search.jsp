@@ -27,13 +27,10 @@
               </tr>
             </thead>
             <tbody>
-            	<c:forEach var="notice" items="${nList }" varStatus="i">
+            	<c:forEach var="notice" items="${sList }" varStatus="i">
             	<tr>
             		<td>${notice.noticeNo }</td>
-            		<c:url var="detailUrl" value="/notice/detail.do">
-            			<c:param name="noticeNo" value="${notice.noticeNo }"></c:param>
-            		</c:url>
-            		<td><a href="${detailUrl }">${notice.noticeSubject }</a></td>
+            		<td><a href="/notice/detail.do?noticeNo=${notice.noticeNo }">${notice.noticeSubject }</a></td>
             		<td>${notice.noticeWriter }</td>
             		<td>
             			<fmt:formatDate pattern="yyyy-MM-dd" value="${notice.nCreateDate }"/>
@@ -47,36 +44,26 @@
             </tbody>
           <tr align="center">
           	<td colspan="5">
-          		<c:if test="${pInfo.startNavi != 1}">
-          			<c:url var="prevUrl" value="/notice/list.do">
-          				<c:param name="page" value="${pInfo.startNavi - 1 }"></c:param>
-          			</c:url>
-          			<a href="${prevUrl }">[이전]</a>
-          		</c:if>
           		<c:forEach begin="${pInfo.startNavi }" end="${pInfo.endNavi }" var="p">
-          			<c:url var="pageUrl" value="/notice/list.do">
+          			<c:url var="pageUrl" value="/notice/search.do">
           				<c:param name="page" value="${p }"></c:param>
+          				<c:param name="searchCondition" value="${searchCondition }"></c:param>
+          				<c:param name="searchKeyword" value="${searchKeyword }"></c:param>
           			</c:url>
           			<a href="${pageUrl }">${p }</a>&nbsp;
           		</c:forEach>
-          		<c:if test="${pInfo.endNavi != pInfo.naviTotalCount}">
-					<c:url var="nextUrl" value="/notice/list.do">
-						<c:param name="page" value="${pInfo.endNavi + 1 }"></c:param>
-					</c:url>          		
-          			<a href="${nextUrl }">[다음]</a>
-          		</c:if>
           	</td>
           </tr>
           <tr>
           	<td colspan="5">
           		<form action="/notice/search.do" method="get">
           			<select name="searchCondition">
-          				<option value="all">전체</option>
-          				<option value="writer">작성자</option>
-          				<option value="subject">제목</option>
-          				<option value="content">내용</option>
+          				<option value="all" <c:if test="${searchCondition == 'all' }">selected</c:if>>전체</option>
+          				<option value="writer" <c:if test="${searchCondition == 'writer' }">selected</c:if>>작성자</option>
+          				<option value="subject" <c:if test="${searchCondition == 'subject' }">selected</c:if>>제목</option>
+          				<option value="content" <c:if test="${searchCondition == 'content' }">selected</c:if>>내용</option>
           			</select>
-          			<input type="text" name="searchKeyword" placeholder="검색어를 입력하세요">
+          			<input type="text" name="searchKeyword" placeholder="검색어를 입력하세요" value="${searchKeyword }">
           			<input type="submit" value="검색">
           		</form>
           	</td>

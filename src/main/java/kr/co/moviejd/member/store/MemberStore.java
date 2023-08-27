@@ -12,7 +12,7 @@ public interface MemberStore {
 	
 	public int deleteMember(SqlSession sqlSession, String memberId);
 	
-	public Member selectCheckLogin(SqlSession sqlSession, Member member);
+	public int selectCheckLogin(SqlSession sqlSession, Member member);
 	
 	public Member selectOneById(SqlSession sqlSession, String memberId);
 	

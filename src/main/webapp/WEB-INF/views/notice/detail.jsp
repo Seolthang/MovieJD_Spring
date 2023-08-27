@@ -26,6 +26,15 @@
               <th id="detail">내용</th>
               <td id="detail_write"><br>${notice.noticeContent }</td>
             </tbody>
+            <tfoot>
+            	<tr>
+					<th id="file">첨부파일</th> 
+					<!-- String으로 받을 수 없고 변환작업이 필요하다 --> 
+	<!-- 			<img alt="첨부파일" src="경로"> -->
+	<!-- 			<img alt="첨부파일" src="${notice.noticeFilepath }"> -->
+					<td id="file_write"><a href="../resources/nuploadFiles/${notice.noticeFilename }" download>${notice.noticeFilename }</a></td>
+				</tr>
+			</tfoot>
           </table>
 			<div class="btn_wrap">
 				<a class="btn btn_01" href="/notice/list.do">목록</a>

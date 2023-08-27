@@ -24,25 +24,25 @@ public class MemberServiceImpl implements MemberService{
 
 	@Override
 	public int updateMember(Member member) {
-		// TODO Auto-generated method stub
-		return 0;
+		int result = mStore.updateMember(sqlSession, member);
+		return result;
 	}
 
 	@Override
 	public int deleteMember(String memberId) {
-		// TODO Auto-generated method stub
-		return 0;
+		int result = mStore.deleteMember(sqlSession, memberId);
+		return result;
 	}
 
 	@Override
-	public Member selectCheckLogin(Member member) {
-		// TODO Auto-generated method stub
-		return null;
+	public int selectCheckLogin(Member member) {
+		int result = mStore.selectCheckLogin(sqlSession, member);
+		return result;
 	}
 
 	@Override
 	public Member selectOneById(String memberId) {
-		// TODO Auto-generated method stub
-		return null;
+		Member member = mStore.selectOneById(sqlSession, memberId);
+		return member;
 	}
 }

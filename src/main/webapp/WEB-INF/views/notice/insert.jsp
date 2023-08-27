@@ -12,11 +12,10 @@
   <body>
     <div class="container">
       <jsp:include page="/WEB-INF/views/include/header.jsp"></jsp:include>
-      <section>
         <div class="board_write_wrap">
           <table class="board_write">
             <caption class="caption_txt">Movie 커뮤니티</caption>
-            <form action="/notice/insert.do" method="post">
+            <form action="/notice/insert.do" method="post" enctype="multipart/form-data">
             <thead>
               <tr>
                 <th id="title">제목</th>
@@ -28,6 +27,13 @@
               <th id="detail_write"><textarea id="" name="noticeContent" rows="20" cols="108" placeholder="내용을 입력해주세요."></textarea></th>
             </tbody>
           </table>
+          <ul>
+          	<li>
+          		<label>첨부파일</label>
+          		<!-- String으로 받을 수 없고 변환작업이 필요하다 -->
+				<input type="file" name="uploadFile">
+          	</li>
+          </ul>
           <div class="write">
             <input type="submit" value="등록" name="submit">
             <input type="reset" value="초기화"name="reset">
@@ -36,7 +42,6 @@
           </form>
           </div>
         </div>
-      </section>
       <footer>
         <p>
           Remember movie. 서울특별시 강북구 수유동 <br>

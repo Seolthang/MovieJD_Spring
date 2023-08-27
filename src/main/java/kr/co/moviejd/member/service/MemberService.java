@@ -10,7 +10,7 @@ public interface MemberService {
 
 	public int deleteMember(String memberId);
 
-	public Member selectCheckLogin(Member member);
+	public int selectCheckLogin(Member member);
 
 	public Member selectOneById(String memberId);
 

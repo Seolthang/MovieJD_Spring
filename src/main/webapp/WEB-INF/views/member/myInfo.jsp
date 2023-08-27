@@ -22,29 +22,29 @@
               <ul>
                 <li>
                   <label for="id">아이디 : </label>
-                  <input class="id_box" type="text" name="member-id" value="${member.memberId }"readonly>
+                  <input class="id_box" type="text" name="memberId" value="${member.memberId }"readonly>
                 </li>
                 <li>
                   <label for="pw">비밀번호 : </label>
-                  <input class="pw_box1" type="password" name="member-pw" placeholder=" 비밀번호를 입력해주세요">
+                  <input class="pw_box1" type="password" name="memberPw" placeholder=" 비밀번호를 입력해주세요">
                 </li>
                 <li>
                   <label for="name">이름 : </label>
-                  <input class="name_box" type="text" name="member-name" value="${member.memberName }"readonly>
+                  <input class="name_box" type="text" name="memberName" value="${member.memberName }"readonly>
                 </li>
                 <li>
                   <label for="gender">성별 : </label>
-                  <input class="gender_box" type="gender" name="member-gender" value="${member.memberGender }"readonly>
+                  <input class="gender_box" type="gender" name="memberGender" value="${member.memberGender }"readonly>
                   <c:if test="${member.memberGender eq 'M' }"></c:if>
                   <c:if test="${member.memberGender eq 'F' }"></c:if>
                 </li>
                 <li>
                   <label for="email">이메일 : </label>
-                  <input class="email_box" type="email" name="member-email" value="${member.memberEmail }">
+                  <input class="email_box" type="email" name="memberEmail" value="${member.memberEmail }">
                 </li>
                 <li>
                   <label for="nick_name">닉네임 : </label>
-                  <input class="nick_name_box" type="text" name="member-nickname" value="${member.memberNickname }">
+                  <input class="nick_name_box" type="text" name="memberNickname" value="${member.memberNickname }">
                 </li>
               </ul>
             </div>

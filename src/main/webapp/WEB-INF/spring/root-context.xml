@@ -5,18 +5,24 @@
 	
 	<!-- Root Context: defines shared resources visible to all other web components -->
 	<bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource">
-		<property name="driverClassName" value="oracle.jdbc.driver.OracleDriver"></property>
-		<property name="url" 			 value="jdbc:oracle:thin:@localhost:1521:xe"></property>
+		<property name="driverClassName" value="net.sf.log4jdbc.sql.jdbcapi.DriverSpy"></property>
+		<property name="url" 			 value="jdbc:log4jdbc:oracle:thin:@localhost:1521:xe"></property>
 		<property name="username" 		 value="MOVIEJD"></property>
 		<property name="password" 		 value="MOVIEJD"></property>
 	</bean>
 	
 	<bean id="sqlSession" class="org.mybatis.spring.SqlSessionFactoryBean">
 		<property name="configLocation" value="classpath:mybatis-config.xml"></property>
-		<property name="dataSource" ref="dataSource"></property>
+		<property name="dataSource" 	ref="dataSource"></property>
 	</bean>
 	
 	<bean id="sqlSessionTemplate" class="org.mybatis.spring.SqlSessionTemplate">
 		<constructor-arg ref="sqlSession"></constructor-arg>
 	</bean>
+	
+	<!-- 파일 업로드 관련 빈 등록 -->
+	<bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+		<property name="maxUploadSize" value="10000000"></property>
+		<property name="maxInMemorySize" value="10000000"></property>
+	</bean>	
 </beans>

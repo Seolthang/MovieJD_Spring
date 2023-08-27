@@ -17,8 +17,8 @@
         <div class="login_area">
           <h1 class="login_text">Remember Movie</h1>
           <form action="/member/login.do" method="post">
-	          <p><input class="id_box" type="text" name="member-id" placeholder=" USER_NAME"></p>
-	          <p><input class="pw_box" type="password" name="member-pw" placeholder=" USER_PASSWORD"></p>
+	          <p><input class="id_box" type="text" name="memberId" placeholder=" USER_NAME"></p>
+	          <p><input class="pw_box" type="password" name="memberPw" placeholder=" USER_PASSWORD"></p>
 	          <input class="login_button" type="submit" value="로그인">
           </form>
         </div>
