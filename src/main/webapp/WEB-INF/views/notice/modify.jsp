@@ -16,22 +16,38 @@
         <div class="board_write_wrap">
           <table class="board_write">
             <caption class="caption_txt">Movie 커뮤니티</caption>
-            <form action="/notice/modify.do" method="post">
-            <input type ="hidden" name = "noticeNo" value="${notice.noticeNo }">
+            <form action="/notice/update.do" method="post" enctype="multipart/form-data">
+            <!-- 		수정할 때, 리다이렉트 될 때 사용 -->
+			<input type="hidden" name="noticeNo" value="${notice.noticeNo }">
+<!-- 		기존 업로드 파일 체크할 때 사용 -->
+			<input type="hidden" name="noticeFilename" value="${notice.noticeFilename }">
+			<input type="hidden" name="noticeFileRename" value="${notice.noticeFileRename }">
+			<input type="hidden" name="noticeFilepath" value="${notice.noticeFilepath }">
+			<input type="hidden" name="noticeFilelength" value="${notice.noticeFilelength }">
             <thead>
               <tr>
                 <th id="title">제목</th>
                 <th id="title_write"><input id="title_area" type="text" name="noticeSubject" value="${notice.noticeSubject }"></th>
               </tr>
+              <tr>
+                <th>작성자</th>
+                <th><input id="title_area" type="text" name="noticeWriter" value="${notice.noticeWriter }" readonly></th>
+              </tr>
             </thead>
             <tbody>
-              <th id="">내용</th>
-              <th id="detail_write"><textarea id="" name="noticeContent" rows="20" cols="108" >${notice.noticeContent }</textarea></th>
+            	<th>내용</th>
+            	<th id="detail_write"><textarea name="noticeContent" rows="20" cols="108" >${notice.noticeContent }</textarea></th>
             </tbody>
+            	<th>첨부파일</th>
+            	<th>
+            	<a href="../resources/nuploadFiles/${notice.noticeFilename }">${notice.noticeFilename }</a>
+            	<input type="file" name="uploadFile">
+            	</th>
           </table>
           <div class="write">
             <input type="submit" value="수정하기" name="submit">
-            <input type="reset" value="초기화"name="reset">
+            <input type="reset" value="초기화" name="reset">
+            <button type="button" onclick="showNoticeList();">목록</button>
 <!--             <a href="/community/comunity_page.html">취소</a> -->
           </div>
           </form>

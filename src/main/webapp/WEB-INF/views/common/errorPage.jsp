@@ -9,6 +9,6 @@
 	<body>
 		<h1>에러내용</h1>
 		<div>${msg }</div>
-		<a herf="${url }">이전 페이지로 이동</a>
+		<a href="${url }">이전 페이지로 이동</a>
 	</body>
 </html>

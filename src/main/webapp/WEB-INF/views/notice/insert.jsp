@@ -21,10 +21,14 @@
                 <th id="title">제목</th>
                 <th id="title_write"><input id="title_area" type="text" name="noticeSubject" placeholder="제목을 입력해주세요."></th>
               </tr>
+              <tr>
+                <th id="writer">작성자</th>
+                <th id="writer_css"><input id="title_area" type="text" name="noticeWriter" value="${memberId }" readonly></th>
+              </tr>
             </thead>
             <tbody>
               <th id="">내용</th>
-              <th id="detail_write"><textarea id="" name="noticeContent" rows="20" cols="108" placeholder="내용을 입력해주세요."></textarea></th>
+              <th id="detail_write"><textarea name="noticeContent" rows="20" cols="108" placeholder="내용을 입력해주세요."></textarea></th>
             </tbody>
           </table>
           <ul>
@@ -35,8 +39,8 @@
           	</li>
           </ul>
           <div class="write">
-            <input type="submit" value="등록" name="submit">
-            <input type="reset" value="초기화"name="reset">
+            <input type="submit" value="등록">
+            <input type="reset" value="초기화">
 <!--             <a href="/community/comunity_page.html">취소</a> -->
           </div>
           </form>

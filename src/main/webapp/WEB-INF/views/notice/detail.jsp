@@ -38,7 +38,7 @@
           </table>
 			<div class="btn_wrap">
 				<a class="btn btn_01" href="/notice/list.do">목록</a>
-				<a class="btn btn_02" href="/notice/modify.do?noticeNo=${notice.noticeNo }">수정</a>
+				<a class="btn btn_02" href="/notice/update.do?noticeNo=${notice.noticeNo }">수정</a>
 				<a class="btn btn_03" href="javascript:void(0)" onclick="deleteCheck();" >삭제</a>
 			</div>            
             <script>

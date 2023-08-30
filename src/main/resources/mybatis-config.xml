@@ -3,13 +3,19 @@
   PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
   "https://mybatis.org/dtd/mybatis-3-config.dtd">
 <configuration>
+	<settings>
+		<setting name="jdbcTypeForNull" value="NULL"></setting>
+	</settings>
+
 	<typeAliases>
 		<typeAlias type="kr.co.moviejd.member.domain.Member" alias="Member"/>
 		<typeAlias type="kr.co.moviejd.notice.domain.Notice" alias="Notice"/>
+		<typeAlias type="kr.co.moviejd.notice.domain.Reply" alias="Reply"/>
 	</typeAliases>
 <!-- 	매퍼 만들고 등록하기 -->
 	<mappers>
 		<mapper resource="mappers/member-mapper.xml"/>
 		<mapper resource="mappers/notice-mapper.xml"/>
+		<mapper resource="mappers/reply-mapper.xml"/>
 	</mappers>
 </configuration>

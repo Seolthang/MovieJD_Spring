@@ -2,47 +2,29 @@ package kr.co.moviejd.notice.domain;
 
 // 페이징 처리 관련 VO
 public class PageInfo {
+	
 	private int currentPage;
+	private int totalCount;
+	private int naviTotalCount;
 	private int recordCountPerPage;
 	private int naviCountPerPage;
 	private int startNavi;
 	private int endNavi;
-	private int totalCount;
-	private int naviTotalCount;
-	
-	private boolean needPrev; // 이전 페이지
-	private boolean needNext; // 다음 페이지
 	
 	public PageInfo() {
-		// TODO Auto-generated constructor stub
+		super();
 	}
 	
-	public PageInfo(int currentPage, int recordCountPerPage, int naviCountPerPage, int startNavi, int endNavi,
-			int totalCount, int naviTotalCount) {
+	public PageInfo(int currentPage, int totalCount, int naviTotalCount, int recordCountPerPage, int naviCountPerPage,
+			int startNavi, int endNavi) {
 		super();
 		this.currentPage = currentPage;
+		this.totalCount = totalCount;
+		this.naviTotalCount = naviTotalCount;
 		this.recordCountPerPage = recordCountPerPage;
 		this.naviCountPerPage = naviCountPerPage;
 		this.startNavi = startNavi;
 		this.endNavi = endNavi;
-		this.totalCount = totalCount;
-		this.naviTotalCount = naviTotalCount;
-	}
-
-	public boolean isNeedPrev() {
-		return needPrev;
-	}
-
-	public void setNeedPrev(boolean needPrev) {
-		this.needPrev = needPrev;
-	}
-
-	public boolean isNeedNext() {
-		return needNext;
-	}
-
-	public void setNeedNext(boolean needNext) {
-		this.needNext = needNext;
 	}
 
 	public int getCurrentPage() {
@@ -50,6 +32,18 @@ public class PageInfo {
 	}
 	public void setCurrentPage(int currentPage) {
 		this.currentPage = currentPage;
+	}
+	public int getTotalCount() {
+		return totalCount;
+	}
+	public void setTotalCount(int totalCount) {
+		this.totalCount = totalCount;
+	}
+	public int getNaviTotalCount() {
+		return naviTotalCount;
+	}
+	public void setNaviTotalCount(int naviTotalCount) {
+		this.naviTotalCount = naviTotalCount;
 	}
 	public int getRecordCountPerPage() {
 		return recordCountPerPage;
@@ -75,23 +69,11 @@ public class PageInfo {
 	public void setEndNavi(int endNavi) {
 		this.endNavi = endNavi;
 	}
-	public int getTotalCount() {
-		return totalCount;
-	}
-	public void setTotalCount(int totalCount) {
-		this.totalCount = totalCount;
-	}
-	public int getNaviTotalCount() {
-		return naviTotalCount;
-	}
-	public void setNaviTotalCount(int naviTotalCount) {
-		this.naviTotalCount = naviTotalCount;
-	}
-
+	
 	@Override
 	public String toString() {
-		return "PageInfo [currentPage=" + currentPage + ", recordCountPerPage=" + recordCountPerPage
-				+ ", naviCountPerPage=" + naviCountPerPage + ", startNavi=" + startNavi + ", endNavi=" + endNavi
-				+ ", totalCount=" + totalCount + ", naviTotalCount=" + naviTotalCount + "]";
+		return "PageInfo [currentPage=" + currentPage + ", totalCount=" + totalCount + ", naviTotalCount="
+				+ naviTotalCount + ", recordCountPerPage=" + recordCountPerPage + ", naviCountPerPage="
+				+ naviCountPerPage + ", startNavi=" + startNavi + ", endNavi=" + endNavi + "]";
 	}
 }

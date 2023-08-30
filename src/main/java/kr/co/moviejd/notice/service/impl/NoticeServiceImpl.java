@@ -1,7 +1,6 @@
 package kr.co.moviejd.notice.service.impl;
 
 import java.util.List;
-import java.util.Map;
 
 import org.apache.ibatis.session.SqlSession;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,10 +15,10 @@ import kr.co.moviejd.notice.store.NoticeStore;
 public class NoticeServiceImpl implements NoticeService{
 
 	@Autowired
-	private SqlSession session;
+	SqlSession session;
 	@Autowired
-	private NoticeStore nStore;
-
+	NoticeStore nStore;
+	
 	@Override
 	public int getListCount() {
 		int result = nStore.selectListCount(session);
@@ -33,27 +32,20 @@ public class NoticeServiceImpl implements NoticeService{
 	}
 
 	@Override
+	public Notice selectNoticeByNo(Integer noticeNo) {
+		Notice noticeOne = nStore.selectNoticeByNo(session, noticeNo);
+		return noticeOne;
+	}
+
+	@Override
 	public int insertNotice(Notice notice) {
 		int result = nStore.insertNotice(session, notice);
 		return result;
 	}
 
 	@Override
-	public int getListCount(Map<String, String> paramMap) {
-		int result = nStore.selectListCount(session, paramMap);
+	public int updateNoticeByNo(Notice notice) {
+		int result = nStore.updateNotice(session, notice);
 		return result;
 	}
-
-	@Override
-	public List<Notice> searchNoticeByKeyword(PageInfo pInfo, Map<String, String> paramMap) {
-		List<Notice> searchList = nStore.selectNoticeByKeyword(session, pInfo, paramMap);
-		return searchList;
-	}
-
-	@Override
-	public Notice selectNoticeByNo(Integer noticeNo) {
-		Notice noticeOne = nStore.selectNoticeByNo(session, noticeNo);
-		return noticeOne;
-	}
-	
 }

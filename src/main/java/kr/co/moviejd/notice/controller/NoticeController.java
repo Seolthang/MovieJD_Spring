@@ -1,15 +1,17 @@
 package kr.co.moviejd.notice.controller;
 
 import java.io.File;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -19,89 +21,118 @@ import org.springframework.web.servlet.ModelAndView;
 
 import kr.co.moviejd.notice.domain.Notice;
 import kr.co.moviejd.notice.domain.PageInfo;
+import kr.co.moviejd.notice.domain.Reply;
 import kr.co.moviejd.notice.service.NoticeService;
+import kr.co.moviejd.notice.service.ReplyService;
+
 
 @Controller
 public class NoticeController {
 
 	@Autowired
-	private NoticeService service;
+	private NoticeService nService;
+	@Autowired
+	private ReplyService rService;
 	
+	// ==================== 게시글 작성 페이지 이동 ====================
 	@RequestMapping(value="/notice/insert.do", method=RequestMethod.GET)
-	public String showInsertForm() {
-		return "notice/insert";
+	public ModelAndView showInsertForm(ModelAndView mav) {
+		mav.setViewName("notice/insert");
+		return mav;
 	}
-	
+	// ==================== 게시글 작성 ====================
 	@RequestMapping(value="/notice/insert.do", method=RequestMethod.POST)
-	public String insertNotice(
-			@ModelAttribute Notice notice
+	public ModelAndView noticeInsert(
+			ModelAndView mav
+			, @ModelAttribute Notice notice
 			, @RequestParam(value="uploadFile", required=false) MultipartFile uploadFile
-			, HttpServletRequest request
-			, Model model) {
+			, HttpSession session
+			, HttpServletRequest request) {
 		try {
-			if(uploadFile != null && !uploadFile.getOriginalFilename().equals("")) {
-				// 파일 이름
-				String fileName = uploadFile.getOriginalFilename();
-				
-				// (내가 저장한 후 그 경로를 DB에 저장하도록 준비하는것)
-				String root = request.getSession().getServletContext().getRealPath("resources");
-				
-				// 폴더가 없을 경우 자동 생성(내가 업로드한 파일을 저장할 폴더)
-				String saveFolder = root + "\\nuploadFiles";
-				File folder = new File(saveFolder);
-				if(!folder.exists()) {
-					folder.mkdir();
+			String noticeWriter = (String)session.getAttribute("memberId");
+			if(noticeWriter != null && !noticeWriter.equals("")) {
+				notice.setNoticeWriter(noticeWriter);
+				if(uploadFile != null && !uploadFile.getOriginalFilename().equals("")) {
+					// 파일정보(이름, 리네임, 경로, 크기) 및 파일저장
+					Map<String, Object> nMap = this.saveFile(request, uploadFile);
+					notice.setNoticeFilename((String)nMap.get("fileName"));
+					notice.setNoticeFileRename((String)nMap.get("fileRename"));
+					notice.setNoticeFilepath((String)nMap.get("filePath"));
+					notice.setNoticeFilelength((long)nMap.get("fileLength"));
 				}
-				
-				// 파일 경로
-				String savePath = saveFolder + "\\" + fileName;
-				File file = new File(savePath);
-				
-				// 파일 저장
-				uploadFile.transferTo(file);
-				
-				// 파일 크기
-				long fileLength = uploadFile.getSize();
-				
-				// DB에 저장하기 위해 notice에 데이터를 Set하는 부분이다.
-				notice.setNoticeFilename(fileName);
-				notice.setNoticeFilepath(savePath);
-				notice.setNoticeFilelength(fileLength);
-			}
-			int result = service.insertNotice(notice);
-			if(result > 0) {
-				return "redirect:/notice/list.do";
+				int result = nService.insertNotice(notice);
+				mav.setViewName("redirect:/notice/list.do");
 			}else {
-				model.addAttribute("msg", "공지사항 등록에 실패하였습니다.");
-				model.addAttribute("error", "공지사항 등록 실패");
-				model.addAttribute("url", "/notice/insert.do");
-				return "common/errorPage";
+				mav.addObject("msg", "게시글 등록이 완료되지 않았습니다");
+				mav.addObject("error", "게시글 등록 실패");
+				mav.addObject("url", "/board/list.do");
+				mav.setViewName("common/errorPage");
 			}
 		} catch (Exception e) {
-			model.addAttribute("msg", "관리자에게 문의해주세요");
-			model.addAttribute("error", e.getMessage());
-			model.addAttribute("url", "/notice/insert.do");
-			return "common/errorPage";
+			mav.addObject("msg", "관리자에게 문의 바랍니다");
+			mav.addObject("error", e.getMessage());
+			mav.addObject("url", "/notice/insert.do");
+			mav.setViewName("common/errorPage");
 		}
+		
+		return mav;
+	}
+	// ==================== 게시글 수정 페이지 이동====================
+	@RequestMapping(value="/notice/update.do", method=RequestMethod.GET)
+	public ModelAndView showNoticeUpdateForm(ModelAndView mav
+			, @RequestParam("noticeNo") Integer noticeNo) {
+		try {
+			Notice notice = nService.selectNoticeByNo(noticeNo);
+			mav.addObject("notice", notice);
+			mav.setViewName("notice/modify");
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
+		
+		return mav;
 	}
 	
-	@RequestMapping(value="/notice/detail.do", method=RequestMethod.GET)
-	public ModelAndView showNoticeDetail(
-			@RequestParam("noticeNo") Integer noticeNo
-			, ModelAndView mav) {
+	@RequestMapping(value="/notice/update.do", method=RequestMethod.POST)
+	public ModelAndView noticeUpdate(ModelAndView mav
+			, @ModelAttribute Notice notice
+			, @RequestParam(value="uploadFile", required=false) MultipartFile uploadFile
+			, HttpServletRequest request
+			, HttpSession session) {
 		try {
-			Notice noticeOne = service.selectNoticeByNo(noticeNo);
-			if(noticeOne != null) {
-				mav.addObject("notice", noticeOne);
-				mav.setViewName("notice/detail");
+			String memberId = (String)session.getAttribute("memberId");
+			String noticeWriter = notice.getNoticeWriter();
+			if(noticeWriter != null && noticeWriter.equals(memberId)) {
+				// 수정이라는 과정은 대체하는 것, 대체하는 방법은 삭제 후 등록
+				if(uploadFile != null && !uploadFile.getOriginalFilename().equals("")) {
+					String fileRename = notice.getNoticeFileRename();
+					if(fileRename != null) {
+						this.deleteFile(fileRename, request);
+					}
+					Map<String, Object> nFileMap = this.saveFile(request, uploadFile);
+					notice.setNoticeFilename((String)nFileMap.get("fileName"));
+					notice.setNoticeFileRename((String)nFileMap.get("fileRename"));
+					notice.setNoticeFilepath((String)nFileMap.get("filePath"));
+					notice.setNoticeFilelength((long)nFileMap.get("fileLength"));
+				}
+				int result = nService.updateNoticeByNo(notice);
+				if(result > 0) {
+					mav.setViewName("redirect:/notice/detail.do?noticeNo="+notice.getNoticeNo());
+				}else {
+					mav.addObject("msg", "게시글 수정이 완료되지 않았습니다");
+					mav.addObject("error", "게시글 수정 실패");
+					mav.addObject("url", "/notice/detail.do");
+					mav.setViewName("common/errorPage");
+				}
 			}else {
-				mav.addObject("msg", "공지사항 조회가 완료되지 않았습니다");
-				mav.addObject("error", "공지사항 상세조회 실패");
+				mav.addObject("msg", "내가 작성한 글만 수정이 가능합니다");
+				mav.addObject("error", "게시글 수정 실패");
 				mav.addObject("url", "/notice/list.do");
 				mav.setViewName("common/errorPage");
 			}
 		} catch (Exception e) {
-			mav.addObject("msg", "공지사항 조회가 완료되지 않았습니다");
+			e.printStackTrace();
+			e.getMessage();
+			mav.addObject("msg", "게시글 수정이 완료되지 않았습니다");
 			mav.addObject("error", e.getMessage());
 			mav.addObject("url", "/notice/list.do");
 			mav.setViewName("common/errorPage");
@@ -109,74 +140,98 @@ public class NoticeController {
 		return mav;
 	}
 	
-	@RequestMapping(value="/notice/list.do", method=RequestMethod.GET)
-	public String showListForm(Model model, @RequestParam(value="page", required=false, defaultValue="1") Integer currentPage) {
-		try {
-			int totalCount = service.getListCount();
-			PageInfo pInfo = this.getPageInfo(currentPage, totalCount);
-			List<Notice> nList = service.selectNoticeList(pInfo);
-			if(nList.size() > 0) {
-				model.addAttribute("pInfo", pInfo);
-				model.addAttribute("nList", nList);
-				return "notice/list";
-			}else {
-				model.addAttribute("msg", "데이터 조회가 되지 않습니다.");
-				model.addAttribute("error", "공지사항 목록 조회 실패");
-				model.addAttribute("url", "/notice/list.do");
-				return "common/errorPage";
-			}
-		} catch (Exception e) {
-			model.addAttribute("msg", "관리자에게 문의해주세요");
-			model.addAttribute("error", e.getMessage());
-			model.addAttribute("url", "/notice/list.do");
-			return "common/errorPage";
+	private void deleteFile(String fileRename, HttpServletRequest request) {
+		// TODO Auto-generated method stub
+		String root = request.getSession().getServletContext().getRealPath("resources");
+		String delPath = root + "\\nuploadFiles\\" + fileRename;
+		File delFile = new File(delPath);
+		if(delFile.exists()) {
+			delFile.delete();
 		}
 	}
 
-	public PageInfo getPageInfo(int currentPage, int totalCount) {
-		PageInfo pi = null;
+	// ==================== 게시글 리스트 ====================
+	@RequestMapping(value="/notice/list.do", method=RequestMethod.GET)
+	public ModelAndView showNoticeList(
+			@RequestParam(value="page", required=false, defaultValue="1") Integer currentPage
+			, ModelAndView mav) {
+		Integer totalCount = nService.getListCount();
+		PageInfo pInfo = this.getPageInfo(currentPage, totalCount);
+		List<Notice> nList = nService.selectNoticeList(pInfo);
+		// 메소드 체이닝 기법으로 연달아 붙여서 사용할 수 있다.
+		mav.addObject("nList", nList).addObject("pInfo", pInfo).setViewName("notice/list");
+		return mav;
+	}
+	// ==================== 게시글 상세조회 ====================
+	@RequestMapping(value="/notice/detail.do", method=RequestMethod.GET)
+	public ModelAndView showNoticeDetail(
+			@RequestParam("noticeNo") Integer noticeNo 
+			, ModelAndView mav) {
+		try {
+			Notice noticeOne = nService.selectNoticeByNo(noticeNo);
+			if(noticeOne != null) {
+				List<Reply> replyList = rService.selectReplyList(noticeNo);
+				if(replyList.size() > 0) {
+					mav.addObject("rList", replyList);
+				}
+				mav.addObject("notice", noticeOne);
+				mav.setViewName("notice/detail");
+			}else {
+				mav.addObject("msg", "게시글 조회가 완료되지 않았습니다");
+				mav.addObject("error", "게시글 상세조회 실패");
+				mav.addObject("url", "/notice/list.do");
+				mav.setViewName("common/errorPage");
+			}
+		} catch (Exception e) {
+			mav.addObject("msg", "게시글 조회가 완료되지 않았습니다");
+			mav.addObject("error", e.getMessage());
+			mav.addObject("url", "/notice/list.do");
+			mav.setViewName("common/errorPage");
+		}
+		return mav;
+	}
+	// ==================== 게시글 페이징 처리 ====================
+	public PageInfo getPageInfo(Integer currentPage, Integer totalCount) {
 		int recordCountPerPage = 7;
 		int naviCountPerPage = 5;
-		int naviTotalCount;
-		int startNavi;
-		int endNavi;
-		
-		// 자동 형변환과 강제 형변환을 같이 사용해서 처리 할 수 있다.
-		naviTotalCount = (int)((double)totalCount/recordCountPerPage + 0.9);
-		// Math.ceil((double)totalCount/recordCountPerPage);
-		// currentPage값이 1~5일때 startNavi가 1로 고정되도록 구해주는 식
-		startNavi = (((int)((double)currentPage/naviCountPerPage + 0.9))-1)*naviCountPerPage + 1;
-		endNavi = startNavi + naviCountPerPage - 1;
-		// endNavi는 startNavi에 무조건 naviCountPerPage값을 더하므로
-		// 실제 최대값보다 커질 수 있음
+		int naviTotalCount = (int)Math.ceil((double)totalCount/recordCountPerPage);
+		int startNavi = ((int)((double)currentPage/naviCountPerPage+0.9)-1)*naviCountPerPage+1;
+		int endNavi = startNavi + naviCountPerPage - 1;
 		if(endNavi > naviTotalCount) {
 			endNavi = naviTotalCount;
 		}
+		PageInfo pInfo = new PageInfo(currentPage, totalCount, naviTotalCount, recordCountPerPage, naviCountPerPage, startNavi, endNavi);
 		
-		pi = new PageInfo(currentPage, recordCountPerPage, naviCountPerPage, startNavi, endNavi, totalCount, naviTotalCount);
-		return pi;
+		return pInfo;
 	}
-	
-	@RequestMapping(value="/notice/search.do", method=RequestMethod.GET)
-	public String searchNoticeList(@RequestParam("searchCondition") String searchCondition, @RequestParam("searchKeyword") String searchKeyword, @RequestParam(value="page", required=false, defaultValue="1") Integer currentPage, Model model) {
-		Map<String, String> paramMap = new HashMap<String, String>();
-		paramMap.put("searchCondition", searchCondition);
-		paramMap.put("searchKeyword", searchKeyword);
-		int totalCount = service.getListCount(paramMap);
-		PageInfo pInfo = this.getPageInfo(currentPage, totalCount);
-		List<Notice> searchList = service.searchNoticeByKeyword(pInfo, paramMap);
-		
-		if(!searchList.isEmpty()) {
-			model.addAttribute("searchCondition", searchCondition);
-			model.addAttribute("searchKeyword", searchKeyword);
-			model.addAttribute("pInfo", pInfo);
-			model.addAttribute("sList", searchList);
-			return "notice/search";
-		}else {
-			model.addAttribute("msg", "데이터 조회가 되지 않습니다.");
-			model.addAttribute("error", "공지사항 제목 조회 실패");
-			model.addAttribute("url", "/notice/list.kh");
-			return "common/errorPage";
+	// ==================== 게시글 첨부파일 업로드 과정 ====================
+	public Map<String, Object> saveFile(HttpServletRequest request, MultipartFile uploadFile) throws Exception{
+		Map<String, Object> fileMap = new HashMap<String, Object>();
+		// resources 경로 구하기
+		String root = request.getSession().getServletContext().getRealPath("resources");
+		// 파일 저장 경로 구하기
+		String savePath = root + "\\nuploadFiles";
+		// 파일 이름 구하기
+		String fileName = uploadFile.getOriginalFilename();
+		// 파일 확장자 구하기
+		String extension = fileName.substring(fileName.lastIndexOf(".")+1);
+		// 시간으로 파일 리네임하기
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
+		String fileRename = sdf.format(new Date(System.currentTimeMillis()))+"."+extension;
+		// 파일 저장 전 폴더 만들기
+		File saveFolder = new File(savePath);
+		if(!saveFolder.exists()) {
+			saveFolder.mkdir();
 		}
+		// 파일 저장
+		File saveFile = new File(savePath+"\\"+fileRename);
+		uploadFile.transferTo(saveFile);
+		long fileLength = uploadFile.getSize();
+		// 파일 정보 리턴
+		fileMap.put("fileName", fileName);
+		fileMap.put("fileRename", fileRename);
+		fileMap.put("filePath", "../resources/nuploadFiles/"+fileRename);
+		fileMap.put("fileLength", fileLength);
+		return fileMap;
 	}
 }
